@@ -26,6 +26,7 @@ async def measurement_from_api():
     API_KEY = os.environ.get('weather_api_1') or "laalalala"
     weather = requests.get(f"https://api.weatherapi.com/v1/current.json?q=Ozarow%20Mazowiecki&key={API_KEY}")
     weather = weather.json()
+    #print(weather)
     place = weather["location"]["name"]
     temp = weather["current"]["temp_c"]
 
