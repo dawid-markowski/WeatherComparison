@@ -1,22 +1,24 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-import requests
-import os
+import requests, os
 from dotenv import load_dotenv
-
-class Measurement(BaseModel):
-    place: str
-    temp: float
-
-app = FastAPI()
+from backend import models
+from backend.db import engine
 load_dotenv()
+
+
+models.Base.metadata.create_all(engine)
+app = FastAPI()
+#uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000# run in parent dir
+
+
+
 
 @app.get("/")
 async def root():
     return{"message":"Welcome to weather comparison app"}
 
 @app.post("/post")
-async def measurement_Save(meas:Measurement):
+async def measurement_Save(meas:models.Measurement):
     print(meas)
     return{"message":"Measurements added correctly"}
 
