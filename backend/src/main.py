@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 import requests, os
 from dotenv import load_dotenv
-from src.schemas import models as py
+from src.schemas import Measurement as MeasurementS
 from src.db import engine
-from src.db import models as db
+from src.models import MeasurementM, Base
 load_dotenv()
 
 
-db.models.Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
 app = FastAPI()
 #cd into backend#
 #uvicorn src.main:app --reload --host 0.0.0.0 --port 8000# run in backend
@@ -20,7 +20,7 @@ async def root():
     return{"message":"Welcome to weather comparison app"}
 
 @app.post("/post")
-async def measurement_Save(meas:py.models.Measurement):
+async def measurement_Save(meas:MeasurementS):
     print(meas)
     return{"message":"Measurements added correctly"}
 
