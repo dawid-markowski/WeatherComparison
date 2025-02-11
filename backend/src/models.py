@@ -2,6 +2,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Float
 
 Base = declarative_base()
+metadata = Base.metadata
 
 class Measurement(Base):
     __tablename__ = "measurements"

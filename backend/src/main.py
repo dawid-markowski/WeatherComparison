@@ -1,18 +1,24 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 import requests, os
 from dotenv import load_dotenv
 from src.schemas import Measurement as MeasurementS
-from src.db import engine
-from src.models import MeasurementM, Base
+from src.db import engine,init_db, get_db
+from src.models import Measurement, Base
+from sqlalchemy.orm import Session
+from sqlalchemy import select
 load_dotenv()
 
 
-Base.metadata.create_all(engine)
+#It creates new tables on startup if there are any but doesnt update the exsisting ones
+#Alembic should be used for version control and modyfing exsisting ones and adding rest
+#works good in testing but its better to use alembic
+#init_db(Base)
+
+#get_db in dependency takes care of connecting to database and creating session
+
 app = FastAPI()
 #cd into backend#
 #uvicorn src.main:app --reload --host 0.0.0.0 --port 8000# run in backend
-
-
 
 
 @app.get("/")
@@ -35,4 +41,12 @@ async def measurement_from_api():
     temp = weather["current"]["temp_c"]
 
     return {"place":place,"temp":temp}
+
+
+#Test for artificially added entry in the db
+@app.get("/recent_temp")
+async def measurement_from_sensor(db: Session = Depends(get_db)):
+    statement = select(Measurement) 
+    pomiar = db.scalars(statement).first()
+    return(pomiar)
 
