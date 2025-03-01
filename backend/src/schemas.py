@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
-class Measurement(BaseModel):
+class MeasurementS(BaseModel):
     place: str
-    temp: float
+    temp_sensor: float
+    temp_api: float
