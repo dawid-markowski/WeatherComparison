@@ -24,46 +24,31 @@ app = FastAPI()
 #@app.post(weather)
 #background task ^
 
-async def get_weather():
-    API_KEY = os.environ.get('weather_api_1') or "laalalala"
-    weather = requests.get(f"https://api.weatherapi.com/v1/current.json?q=Ozarow%20Mazowiecki&key={API_KEY}")
-    weather = weather.json()
-    #print(weather)
-    place = weather["location"]["name"]
-    temp = weather["current"]["temp_c"]
-
-    return {"place":place,"temp":temp}
-
-
-
 
 @app.get("/")
 async def root():
     return{"message":"Welcome to weather comparison app"}
 
-@app.post("/post")
+@app.post("/measurement")
 async def measurement_Save(meas:MeasurementS, db: Session = Depends(get_db)):
-    #pomiar = Measurement(temp_sensor=temp_sensor)
-    print(meas.temp_sensor)
+    API_KEY = os.environ.get('weather_api_1') or "laalalala"
+    weather = requests.get(f"https://api.weatherapi.com/v1/current.json?q={meas.place}&key={API_KEY}")#trzeba zrobic tak aby place z sensora bylo wstawione w request
+    weather = weather.json()
+    #print(weather)
+    place_api = weather["location"]["name"]
+    temp_api = weather["current"]["temp_c"]
+    pomiar = Measurement(place=place_api,temp_sensor=meas.temp_sensor,temp_api=temp_api)
+    db.add(pomiar)
+    db.commit()
+
     return{"message":"Measurements added correctly"}
 
 
-@app.get("/get_weather")
-async def measurement_from_api():
-    API_KEY = os.environ.get('weather_api_1') or "laalalala"
-    weather = requests.get(f"https://api.weatherapi.com/v1/current.json?q=Ozarow%20Mazowiecki&key={API_KEY}")
-    weather = weather.json()
-    #print(weather)
-    place = weather["location"]["name"]
-    temp = weather["current"]["temp_c"]
-
-    return {"place":place,"temp":temp}
-
-
 #Test for artificially added entry in the db
-@app.get("/recent_temp")
+@app.get("/measurement")
 async def measurement_from_sensor(db: Session = Depends(get_db)):
-    statement = select(Measurement) 
+    statement = select(Measurement).order_by(Measurement.id.desc())
     pomiar = db.scalars(statement).first()
+
     return(pomiar)
 

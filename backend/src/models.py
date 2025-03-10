@@ -14,4 +14,7 @@ class Measurement(Base):
     temp_sensor = Column(Float)
     temp_api = Column(Float)
 
+    def __repr__(self):
+        return(f"<Measurement(id={self.id},date={self.date},place={self.place},temp_sensor={self.temp_sensor},temp_api={self.temp_api})>")
+
 
