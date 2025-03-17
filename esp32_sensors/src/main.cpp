@@ -1,28 +1,26 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 const int buttonPin = 0;
 bool IS_ON = 0;
 bool buttonPressed = false;
-long Temp;
-//String postAddr = "http://127.0.0.1:8000/post"; // web ip address
-const char* serverIP = "192.168.0.204"; // local ip addrss
+float Temp;
+const int oneWireBus = 4;
+OneWire oneWire(oneWireBus);
+DallasTemperature sensors(&oneWire);
+const char* serverIP = "192.168.0.207"; // local ip addrss
 const int serverPort = 8000; // port for local communication
-String postAddr = String("http://") + serverIP + ":" + serverPort + "/post"; // complete url address
+String postAddr = String("http://") + serverIP + ":" + serverPort + "/measurement"; // complete url address
 
 const char* ssid = "GreenNet1";
 const char* password = "niunia1234";
 
-int TempGenerator(){
-  long randTemp;
-  randTemp = random(-10,10);
-  delay(5000);
-  return randTemp;
-}
-
 void setup(){
   Serial.begin(115200);
+  sensors.begin();
   Serial.print("\n\nŁączenie z ");
   Serial.println(ssid);
   WiFi.begin(ssid, password);
@@ -44,7 +42,7 @@ void setup(){
 void loop(){
 int buttonState = digitalRead(buttonPin);
 //Serial.println(buttonState);
-delay(300);
+
 
 
 //when button is pressed 1 is free 0 is pushed
@@ -61,10 +59,11 @@ if(buttonState == 1){
 
 
 if(IS_ON){
-  Temp = TempGenerator();
+  sensors.requestTemperatures();
+  Temp = sensors.getTempCByIndex(0);
   JsonDocument doc;
   doc["place"] = "Ozarow Mazowiecki";
-  doc["temp"] = Temp;
+  doc["temp_sensor"] = Temp;
   String payload;
   serializeJson(doc, payload);
   Serial.println("Wyslana wiadomosc:");
@@ -88,6 +87,7 @@ if(IS_ON){
 
 
   }
+  delay(5000);
 }
 
 }

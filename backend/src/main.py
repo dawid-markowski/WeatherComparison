@@ -20,15 +20,12 @@ app = FastAPI()
 #cd into backend#
 #uvicorn src.main:app --reload --host 0.0.0.0 --port 8000# run in backend
 
-#@app.get(weather)
-#@app.post(weather)
-#background task ^
-
 
 @app.get("/")
 async def root():
     return{"message":"Welcome to weather comparison app"}
 
+#Save sensor and api temperature to db
 @app.post("/measurement")
 async def measurement_Save(meas:MeasurementS, db: Session = Depends(get_db)):
     API_KEY = os.environ.get('weather_api_1') or "laalalala"
@@ -44,7 +41,7 @@ async def measurement_Save(meas:MeasurementS, db: Session = Depends(get_db)):
     return{"message":"Measurements added correctly"}
 
 
-#Test for artificially added entry in the db
+#Access sensor and api temperature
 @app.get("/measurement")
 async def measurement_from_sensor(db: Session = Depends(get_db)):
     statement = select(Measurement).order_by(Measurement.id.desc())
